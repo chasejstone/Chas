@@ -173,8 +173,15 @@ There's plenty I haven't built yet:
 3. User defined records or structs.
 4. A bytecode compiler and VM. The current implementation is a tree
    walker, which is slow but easy to follow.
-5. A real test suite under `tests/`. Right now I tested each stage by
-   hand while building it.
+
+## Tests
+
+Run the lexer, parser, type checker, evaluator, and example coverage from
+the repository root:
+
+```
+python -m unittest discover -s tests -v
+```
 
 ## License
 
