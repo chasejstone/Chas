@@ -38,6 +38,15 @@ class ChasTests(unittest.TestCase):
 
         self.assertEqual(output.getvalue().strip(), "7")
 
+    def test_negative_remainder_matches_truncating_division(self) -> None:
+        program = compile_source("print(-5 / 2)\nprint(-5 % 2)")
+        output = io.StringIO()
+
+        with contextlib.redirect_stdout(output):
+            run(program)
+
+        self.assertEqual(output.getvalue().splitlines(), ["-2", "-1"])
+
     def test_closure_mutates_enclosing_scope(self) -> None:
         source = (CHAS_ROOT / "examples" / "closures.chs").read_text(encoding="utf-8")
         program = compile_source(source)

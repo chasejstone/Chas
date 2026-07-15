@@ -180,6 +180,13 @@ def _format(v: object) -> str:
     return str(v)
 
 
+def _truncating_quotient(a: int, b: int) -> int:
+    """Return the integer quotient of a and b, rounded toward zero."""
+
+    q = abs(a) // abs(b)
+    return q if (a >= 0) == (b >= 0) else -q
+
+
 # ---------------------------------------------------------------------------
 # Evaluator
 # ---------------------------------------------------------------------------
@@ -332,16 +339,15 @@ class Evaluator:
                     raise RuntimeError_(
                         "integer division by zero", node.location
                     )
-                # Integer division in Chas rounds toward zero, unlike
-                # Python's // which floors. Match the C / Rust behavior.
-                q = abs(a) // abs(b)
-                return q if (a >= 0) == (b >= 0) else -q
+                return _truncating_quotient(a, b)
             if b == 0:
                 raise RuntimeError_("division by zero", node.location)
             return a / b
         if op == "%":
             if b == 0:
                 raise RuntimeError_("modulo by zero", node.location)
+            if isinstance(a, int) and isinstance(b, int):
+                return a - _truncating_quotient(a, b) * b
             return a % b
         if op == "==":
             return a == b

@@ -1,6 +1,32 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Test caches
+.pytest_cache/
+.coverage
+
+# Virtual environments
 .venv/
-.vscode/
+venv/
+env/
+ENV/
+
+# Editors / IDEs
 .idea/
+.vscode/
+*.swp
+*.swo
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini

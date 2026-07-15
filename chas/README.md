@@ -157,9 +157,9 @@ for the operator set Chas has.
 
 Types are represented as a small frozen dataclass, not strings, so the
 type checker does identity comparisons instead of string equality. There
-is one slightly unusual thing in there: functions are hoisted at the top
-of each scope in a first pass, so mutual recursion at the top level works
-without forward declarations.
+is one slightly unusual thing in there: top-level functions are hoisted
+in a first pass, so mutual recursion works without forward declarations.
+Nested functions are declared in source order.
 
 ## What's missing
 
