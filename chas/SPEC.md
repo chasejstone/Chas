@@ -166,7 +166,8 @@ override inference and are checked for compatibility.
 
 - `+ - * / %` want both operands to be `int` or both `float`, and give
   back the same type. `+` also works on two strings and concatenates
-  them.
+  them. Integer division truncates toward zero, and integer `%` returns
+  the matching remainder.
 - `== !=` want matching primitive operands and give back `bool`.
 - `< <= > >=` want numeric operands and give back `bool`.
 - `&& || !` want `bool` operands and give back `bool`.

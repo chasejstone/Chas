@@ -157,9 +157,9 @@ for the operator set Chas has.
 
 Types are represented as a small frozen dataclass, not strings, so the
 type checker does identity comparisons instead of string equality. There
-is one slightly unusual thing in there: functions are hoisted at the top
-of each scope in a first pass, so mutual recursion at the top level works
-without forward declarations.
+is one slightly unusual thing in there: top-level functions are hoisted
+in a first pass, so mutual recursion works without forward declarations.
+Nested functions are declared in source order.
 
 ## What's missing
 
@@ -173,8 +173,15 @@ There's plenty I haven't built yet:
 3. User defined records or structs.
 4. A bytecode compiler and VM. The current implementation is a tree
    walker, which is slow but easy to follow.
-5. A real test suite under `tests/`. Right now I tested each stage by
-   hand while building it.
+
+## Tests
+
+Run the lexer, parser, type checker, evaluator, and example coverage from
+the repository root:
+
+```
+python -m unittest discover -s tests -v
+```
 
 ## License
 
