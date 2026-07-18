@@ -36,8 +36,10 @@ from semantic import analyze  # noqa: E402
 from evaluator import run as evaluate  # noqa: E402
 
 
-USAGE = """\
-Chas 0.1.0, a small statically typed language.
+VERSION = "0.1.0"
+
+USAGE = f"""\
+Chas {VERSION}, a small statically typed language.
 
 Usage:
   python chas.py run    <file.chs>   run a program
@@ -45,6 +47,7 @@ Usage:
   python chas.py ast    <file.chs>   print the AST
   python chas.py check  <file.chs>   type check, don't run
   python chas.py --help              show this message
+  python chas.py --version           show the version
 """
 
 
@@ -91,6 +94,10 @@ def cmd_run(path: str) -> int:
 
 
 def main(argv: List[str]) -> int:
+    if len(argv) >= 2 and argv[1] in ("-V", "--version", "version"):
+        print(f"Chas {VERSION}")
+        return 0
+
     if len(argv) < 2 or argv[1] in ("-h", "--help", "help"):
         print(USAGE)
         return 0 if len(argv) >= 2 else 1

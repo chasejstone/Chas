@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import contextlib
 import io
+import subprocess
 import sys
 import unittest
 from pathlib import Path
 
 
-CHAS_ROOT = Path(__file__).resolve().parents[1] / "chas"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+CHAS_ROOT = REPO_ROOT / "chas"
+CHAS_CLI = CHAS_ROOT / "chas.py"
 sys.path.insert(0, str(CHAS_ROOT / "src"))
 
 from errors import TypeError_  # noqa: E402
@@ -48,7 +51,9 @@ class ChasTests(unittest.TestCase):
         self.assertEqual(output.getvalue().splitlines(), ["-2", "-1"])
 
     def test_closure_mutates_enclosing_scope(self) -> None:
-        source = (CHAS_ROOT / "examples" / "closures.chs").read_text(encoding="utf-8")
+        source = (CHAS_ROOT / "examples" / "closures.chs").read_text(
+            encoding="utf-8"
+        )
         program = compile_source(source)
         output = io.StringIO()
 
@@ -65,6 +70,43 @@ class ChasTests(unittest.TestCase):
 
         with self.assertRaises(TypeError_):
             analyze(program)
+
+
+class ChasCliTests(unittest.TestCase):
+    def run_cli(self, *args: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [sys.executable, str(CHAS_CLI), *args],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+
+    def test_version(self) -> None:
+        result = self.run_cli("--version")
+
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stdout.strip(), "Chas 0.1.0")
+        self.assertEqual(result.stderr, "")
+
+    def test_check_example(self) -> None:
+        example = CHAS_ROOT / "examples" / "fibonacci.chs"
+        result = self.run_cli("check", str(example))
+
+        self.assertEqual(result.returncode, 0)
+        self.assertIn("type-checks cleanly", result.stdout)
+        self.assertEqual(result.stderr, "")
+
+    def test_run_example(self) -> None:
+        example = CHAS_ROOT / "examples" / "hello.chs"
+        result = self.run_cli("run", str(example))
+
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(
+            result.stdout.splitlines(),
+            ["Hello, Chas!", "Year: 2026", "string", "int", "float", "bool"],
+        )
+        self.assertEqual(result.stderr, "")
 
 
 if __name__ == "__main__":

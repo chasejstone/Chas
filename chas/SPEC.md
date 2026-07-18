@@ -151,7 +151,7 @@ Chas is statically typed. It infers types locally when it can.
 
 | Type     | Values                                   |
 |----------|------------------------------------------|
-| `int`    | 64-bit signed integers                   |
+| `int`    | arbitrary-precision signed integers      |
 | `float`  | IEEE-754 double precision                |
 | `string` | Unicode strings                          |
 | `bool`   | `true` or `false`                        |
