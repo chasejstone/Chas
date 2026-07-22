@@ -20,11 +20,13 @@ How things are represented at runtime:
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from typing import Callable, Dict, List, Optional
 
 import ast_nodes as ast
 from errors import RuntimeError_, SourceLocation
+from runtime_format import format_integer
 
 
 # ---------------------------------------------------------------------------
@@ -112,7 +114,7 @@ class _ReturnSignal(Exception):
 
 
 def _builtin_print(interp, args, loc):
-    print(_format(args[0]))
+    interp.output(_format(args[0]))
     return None
 
 
@@ -166,13 +168,17 @@ def _format(v: object) -> str:
         return "true" if v else "false"
     if v is None:
         return "void"
+    if isinstance(v, int):
+        return format_integer(v)
     if isinstance(v, float):
         # Keep a trailing decimal so floats are visibly distinct from ints.
+        if not math.isfinite(v):
+            return repr(v)
         if v == int(v):
             return f"{v:.1f}"
         return repr(v)
     if isinstance(v, _Range):
-        return f"{v.start}..{v.end}"
+        return f"{format_integer(v.start)}..{format_integer(v.end)}"
     if isinstance(v, _Function):
         return f"<fn {v.decl.name}>"
     if isinstance(v, _Builtin):
@@ -195,7 +201,8 @@ def _truncating_quotient(a: int, b: int) -> int:
 class Evaluator:
     """Runs a type checked AST by walking it node by node."""
 
-    def __init__(self) -> None:
+    def __init__(self, output: Callable[[str], None] = print) -> None:
+        self.output = output
         self._globals = _Environment()
         for name, b in BUILTINS.items():
             self._globals.define(name, b)
@@ -366,6 +373,10 @@ class Evaluator:
         )
 
 
-def run(program: ast.Program) -> None:
+def run(
+    program: ast.Program,
+    *,
+    output: Callable[[str], None] = print,
+) -> None:
     """Shortcut for running a program with a fresh interpreter."""
-    Evaluator().run(program)
+    Evaluator(output=output).run(program)

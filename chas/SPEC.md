@@ -1,11 +1,13 @@
 # Chas Language Specification
 
-Chas is a small statically typed language with Python-ish syntax that
-runs on a tree walking interpreter. This document is the reference for
-the grammar and semantics. If something isn't written here, assume it's
+Chas is a small statically typed language with Python-ish syntax. The
+implementation includes a readable tree-walking evaluator and a compatible
+stack bytecode virtual machine. This document is the reference for the
+language grammar and semantics. If something isn't written here, assume it's
 either not supported or subject to change.
 
-Version: **0.1.0**
+Language version: **0.1**
+Current implementation: **0.2.0**
 File extension: **`.chs`**
 
 ---
@@ -57,6 +59,10 @@ string_char    ::= any-unicode-char-except-quote-or-backslash
                  | "\\" ( '"' | "\\" | "n" | "t" | "r" | "0" )
 bool_literal   ::= "true" | "false"
 ```
+
+Integer values use arbitrary-precision arithmetic. A source integer literal is
+limited to 4,096 decimal digits so lexing behaves consistently across supported
+Python versions; arithmetic results may grow beyond that size.
 
 ### 1.6 Operators and delimiters
 
@@ -180,6 +186,16 @@ Parameter and return types have to be written out. If you leave off the
 allowed to return a value. A non void function has to return a value on
 every path.
 
+#### 3.4.1 Evaluation order
+
+Expressions evaluate from left to right. A call evaluates its callee first,
+then its arguments from left to right. `&&` and `||` short circuit: the right
+operand is evaluated only when it can affect the result.
+
+Top-level function declarations are hoisted, so top-level functions can call
+one another before their declarations appear in the file. Nested functions
+are introduced in source order.
+
 ### 3.5 Closures
 
 A nested `fn` captures variables from the scope it was defined in, by
@@ -233,6 +249,9 @@ for i in 0..10 {
 
 The expression after `in` has to be a range (`a..b`). The loop variable
 takes values from `a` up to but not including `b`.
+
+Each iteration receives a fresh scope for its loop variable and body. A
+closure created during an iteration therefore keeps that iteration's binding.
 
 ---
 
