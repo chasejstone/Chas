@@ -9,6 +9,7 @@ a real position.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import List
@@ -93,6 +94,12 @@ KEYWORDS: dict[str, TokenType] = {
     "bool": TokenType.TYPE_BOOL,
     "void": TokenType.TYPE_VOID,
 }
+
+
+# Python 3.11 added a process-level decimal conversion limit while 3.10 did
+# not. Chas uses one explicit source limit so programs behave the same on every
+# supported interpreter. Arithmetic results remain arbitrary-precision ints.
+MAX_INTEGER_LITERAL_DIGITS = 4_096
 
 
 @dataclass
@@ -309,8 +316,15 @@ class Lexer:
                 chars.append(self._advance())
         text = "".join(chars)
         if is_float:
-            self._add(TokenType.FLOAT, text, float(text), loc)
+            value = float(text)
+            if not math.isfinite(value):
+                raise LexerError("float literal is out of range", loc)
+            self._add(TokenType.FLOAT, text, value, loc)
         else:
+            if len(text) > MAX_INTEGER_LITERAL_DIGITS:
+                raise LexerError(
+                    "integer literal exceeds the 4,096 digit limit", loc
+                )
             self._add(TokenType.INT, text, int(text), loc)
 
     def _string(self, loc: SourceLocation) -> None:

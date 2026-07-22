@@ -375,7 +375,7 @@ class SemanticAnalyzer:
                 node.location,
             )
         if op in ("==", "!="):
-            if lt is not rt or lt in (VOID, RANGE):
+            if lt is not rt or lt not in (INT, FLOAT, STRING, BOOL):
                 raise TypeError_(
                     f"operator {op!r} requires matching primitive types, "
                     f"got {lt} and {rt}",

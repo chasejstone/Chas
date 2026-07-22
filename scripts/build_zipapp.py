@@ -17,10 +17,10 @@ VERSION_PATTERN = re.compile(r'^VERSION = "([^"]+)"$', re.MULTILINE)
 
 
 def read_version() -> str:
-    source = (CHAS_ROOT / "chas.py").read_text(encoding="utf-8")
+    source = (CHAS_ROOT / "src" / "version.py").read_text(encoding="utf-8")
     match = VERSION_PATTERN.search(source)
     if match is None:
-        raise RuntimeError("could not find VERSION in chas/chas.py")
+        raise RuntimeError("could not find VERSION in chas/src/version.py")
     return match.group(1)
 
 

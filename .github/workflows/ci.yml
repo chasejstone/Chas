@@ -10,10 +10,11 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest]
         python-version: ["3.10", "3.14"]
     steps:
       - name: Check out repository
@@ -26,9 +27,12 @@ jobs:
         run: python -m compileall -q chas scripts tests
       - name: Run tests
         run: python -m unittest discover -s tests -v
+      - name: Import Studio and bytecode modules
+        run: python -c "import sys; sys.path.insert(0, 'chas/src'); import bytecode, studio, studio_service"
       - name: Build zip application
         run: python scripts/build_zipapp.py --output dist/chas.pyz
       - name: Smoke test zip application
         run: |
           python dist/chas.pyz --version
           python dist/chas.pyz check chas/examples/fibonacci.chs
+          python dist/chas.pyz run chas/examples/hello.chs --engine vm
